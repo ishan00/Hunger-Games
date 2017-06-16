@@ -1,0 +1,8 @@
+#lang racket/gui
+(require 2htdp/image)
+(require racket/mpair)
+
+
+(define (sprite)
+  (rectangle 180 80 "solid" (make-color 204 153 255)))
+  
