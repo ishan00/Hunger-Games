@@ -30,31 +30,31 @@
 
 (define (map)
   (overlay/offset
-   (empty-herbs)
+   (berry-herbs)
    -200 -100
    (overlay/offset
     (empty-herbs)
     200 -100
     (overlay/offset
-     (empty-herbs)
+     (berry-herbs)
      -200 100
      (overlay/offset
       (empty-herbs)
       200 100
       (overlay/offset
-       (empty-herbs)
+       (berry-herbs)
        0 0
        (overlay/offset
         (empty-herbs)
         -100 -200
         (overlay/offset
-         (empty-herbs)
+         (berry-herbs)
          100 -200
          (overlay/offset
           (empty-herbs)
           -100 200
           (overlay/offset
-           (empty-herbs)
+           (berry-herbs)
            100 200
            (overlay/offset
             (empty-herbs)
@@ -90,7 +90,7 @@
                       (stones)
                       100 -100
                       (overlay/offset
-                       (rotate (/ (* -180 theta) pi) (sprite))
+                       (rotate (/ (* -180 theta) pi) (sprite-axe))
                        x_sprite y_sprite
                        (background)))))))))))))))))))))))
    

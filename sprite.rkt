@@ -1,5 +1,5 @@
 #lang racket/gui
-(provide sprite axe sword hammer stones empty-herbs)
+(provide sprite axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-hammer sprite-sword)
 (require 2htdp/image)
 (require racket/mpair)
 (require lang/posn)
@@ -144,9 +144,41 @@
    (pulled-regular-polygon 30 3 1/2 -30 "solid" (make-color 255 255 255))
    ))
 
+(define (berry-herbs)
+  (overlay/offset
+   (overlay/offset
+    (circle 2 "solid" (make-color 178 102 255))
+    1 1
+    (circle 4 "solid" (make-color 102 0 102)))
+   5 -7 
+   (overlay/offset
+    (overlay/offset
+     (circle 2 "solid" (make-color 178 102 255))
+     1 1
+     (circle 4 "solid" (make-color 102 0 102)))
+    -5 0 
+    (overlay/offset
+     (overlay/offset
+      (circle 2 "solid" (make-color 178 102 255))
+      1 1
+      (circle 4 "solid" (make-color 102 0 102)))
+     5 5
+     (empty-herbs)))))
+
+(berry-herbs)
+(define (sprite-axe)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 28 21 (axe)))))
+(define (sprite-hammer)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 21 21 (hammer)))))
+(define (sprite-sword)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 25 25 (sword)))))
+
 ;(sprite)
 ;(axe)
 ;(hammer)
 ;(sword)
 ;(stones)
 ;(empty-herbs)
+;(sprite-axe)
+;(sprite-hammer)
+;(sprite-sword)
