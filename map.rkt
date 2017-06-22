@@ -1,6 +1,45 @@
 #lang racket/gui
 (require "sprite.rkt")
 (require 2htdp/image)
+(struct object(type x y) #:transparent #:mutable)
+
+(struct meter(health wood stone) #:transparent #:mutable)
+
+(define character
+  (object "sprite" 40 50))
+
+(define resources
+  (meter 100 0 0))
+
+(define (stones_list)
+  (list (object "stone" 100 -100)
+        (object "stone" -400 -10)
+        (object "stone" -100 0)
+        (object "stone" 400 -100)
+        (object "stone" 150 -50)
+        (object "stone" 300 100)
+        (object "stone" -300 -200)
+        (object "stone" 400 0)
+        (object "stone" 50 200)
+        (object "stone" 300 -100)))
+
+(define (herbs_list)
+  (list (object "empty" 100 100)
+        (object "empty" -100 200)
+        (object "empty" -100 -200)
+        (object "empty" 200 100)
+        (object "empty" 200 -100)
+        (object "berry" 100 200)
+        (object "berry" 100 -200)
+        (object "berry" 0 0)
+        (object "berry" -200 100)
+        (object "berry" -200 -100)))
+
+(define (mobs_list)
+  (list (object "rabbit" 200 0)
+        (object "rabbit" -300 300)
+        (object "rabbit" 0 100)
+        (object "rabbit" -100 -100)))
 
 (define x_sprite 40)
 (define y_sprite 50)
@@ -16,10 +55,18 @@
     ;          (send canvas refresh))))
     (define/override (on-char event)
       (let* ((key (send event get-key-code)))
-        (cond ((eq? key 'right) (set! x_sprite (- x_sprite 5)))
-              ((eq? key 'left) (set! x_sprite (+ x_sprite 5)))
-              ((eq? key 'up) (set! y_sprite (+ y_sprite 5)))
-              ((eq? key 'down) (set! y_sprite (- y_sprite 5))))
+        (cond ((eq? key 'right) (set! character (object "sprite"
+                                                        (- (object-x character) 5)
+                                                        (object-y character))))
+              ((eq? key 'left) (set! character (object "sprite"
+                                                        (+ (object-x character) 5)
+                                                        (object-y character))))
+              ((eq? key 'up) (set! character (object "sprite"
+                                                        (object-x character)
+                                                        (+ (object-y character) 5))))
+              ((eq? key 'down) (set! character (object "sprite"
+                                                        (object-x character)
+                                                        (- (object-y character) 5)))))
         (send canvas refresh)))
     (super-new)))
 (define canvas (new my-canvas% [parent game]
@@ -28,71 +75,20 @@
 
 (send game show #t)
 
+(define (draw list fig background)
+  (if (null? list) background
+      (let* ((obj (car list)))
+        (begin
+          (set! background (overlay/offset fig (object-x obj) (object-y obj) background))
+          (draw (cdr list) fig background)))))
+
 (define (map)
-  (overlay/offset
-   (berry-herbs)
-   -200 -100
-   (overlay/offset
-    (empty-herbs)
-    200 -100
-    (overlay/offset
-     (berry-herbs)
-     -200 100
-     (overlay/offset
-      (empty-herbs)
-      200 100
-      (overlay/offset
-       (berry-herbs)
-       0 0
-       (overlay/offset
-        (empty-herbs)
-        -100 -200
-        (overlay/offset
-         (berry-herbs)
-         100 -200
-         (overlay/offset
-          (empty-herbs)
-          -100 200
-          (overlay/offset
-           (berry-herbs)
-           100 200
-           (overlay/offset
-            (empty-herbs)
-            100 100
-            (overlay/offset
-             (stones)
-             300 -100
-             (overlay/offset
-              (stones)
-              50 200
-              (overlay/offset
-               (stones)
-               400 0
-               (overlay/offset
-                (stones)
-                -300 -200
-                (overlay/offset
-                 (stones)
-                 300 100
-                 (overlay/offset
-                  (stones)
-                  150 -50
-                  (overlay/offset
-                   (stones)
-                   400 -100
-                   (overlay/offset
-                    (stones)
-                    -100 0
-                    (overlay/offset
-                     (stones)
-                     -400 -10
-                     (overlay/offset
-                      (stones)
-                      100 -100
-                      (overlay/offset
-                       (rotate (/ (* -180 theta) pi) (sprite-axe))
-                       x_sprite y_sprite
-                       (background)))))))))))))))))))))))
+  (overlay/offset (sprite-axe)
+                  (object-x character)
+                  (object-y character)
+        (draw (mobs_list) (rabbit)
+              (draw (herbs_list) (empty-herbs)
+                    (draw (stones_list) (stones) (background))))))
    
 (define (background)
   (put-pinhole 0 0 (rectangle 1200 700 "solid" (make-color 0 80 60))))
