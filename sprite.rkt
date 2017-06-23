@@ -166,38 +166,41 @@
      (empty-herbs)))))
 
 (define (sprite-axe)
-  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 28 21 (axe)))))
+  (lambda(x)
+    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 28 21 (axe)))))))
 (define (sprite-hammer)
-  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 21 21 (hammer)))))
+  (lambda(x)
+    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 21 21 (hammer)))))))
 (define (sprite-sword)
-  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (put-pinhole 25 25 (sword)))))
+  (lambda(x)
+    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 25 25 (sword)))))))
 (define (rabbit)
   (scale 0.3 (overlay/offset
-   (overlay/offset
-    (overlay/offset
-     (circle 5 "solid" "white")
-     40 0
-     (circle 5 "solid" "white"))
-    3 6
-    (overlay/offset
-     (circle 13 "solid" "black")
-     40 0
-     (circle 13 "solid" "black")))
-   0 -30
-   (add-polygon 
-    (add-polygon
-     (overlay/align
-      "center" "center"
-      (circle 40 "solid" (make-color 255 153 204))
-      (circle 44 "solid" "white"))
-     (list (make-posn 17 20)
-           (make-pulled-point 1/6 50 5 -34 1/6 -50)
-           (make-posn 26 12))
-     "solid" (make-color 255 153 204))
-    (list (make-posn 61 44)
-          (make-pulled-point 1/6 110 84 2 1/6 -50)
-          (make-posn 70 54))
-    "solid" (make-color 255 153 204)))))
+              (overlay/offset
+               (overlay/offset
+                (circle 5 "solid" "white")
+                40 0
+                (circle 5 "solid" "white"))
+               3 6
+               (overlay/offset
+                (circle 13 "solid" "black")
+                40 0
+                (circle 13 "solid" "black")))
+              0 -30
+              (add-polygon 
+               (add-polygon
+                (overlay/align
+                 "center" "center"
+                 (circle 40 "solid" (make-color 255 153 204))
+                 (circle 44 "solid" "white"))
+                (list (make-posn 17 20)
+                      (make-pulled-point 1/6 50 5 -34 1/6 -50)
+                      (make-posn 26 12))
+                "solid" (make-color 255 153 204))
+               (list (make-posn 61 44)
+                     (make-pulled-point 1/6 110 84 2 1/6 -50)
+                     (make-posn 70 54))
+               "solid" (make-color 255 153 204)))))
 
 ;(sprite)
 ;(axe)
