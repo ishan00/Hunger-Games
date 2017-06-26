@@ -2,12 +2,13 @@
 (provide (all-defined-out))
 (require "sprite.rkt")
 (require 2htdp/image)
+(require 2htdp/universe)
 (struct object(type x y) #:transparent #:mutable)
 
 (struct meter(health wood stone) #:transparent #:mutable)
 (define timer (current-seconds))
 
-(define sprite ((sprite-axe) 0))
+(define sprite ((sprite-hammer) 0))
 (define x_pos 50)
 (define y_pos 60)
 (define theta 0)
@@ -17,7 +18,7 @@
 (define (incrementY val)
   (set! y_pos (+ y_pos val)))
 
-(define (resources)
+(define resources
   (meter 100 0 0))
 
 (define (stones_list)
@@ -90,10 +91,10 @@
               ((eq? key 'up) (incrementY 5))
               ((eq? key 'down) (incrementY -5))
               ((eq? key #\space) (begin
-                                   (set! sprite ((sprite-axe) 45))
+                                   (set! sprite ((sprite-sword) 45))
                                    (send canvas refresh)
                                    (sleep/yield 1)
-                                   (set! sprite ((sprite-axe) 0)))))
+                                   (set! sprite ((sprite-sword) 0)))))
         (send canvas refresh)))
     (super-new)))
 (define canvas (new my-canvas% [parent game]
@@ -118,16 +119,22 @@
 ;    (set! sprite ((sprite-axe) 0))
 ;    (send canvas refresh)))
 
-;(define health (new gauge% [label "Health"]
-;                       [parent game]
-;                       [min-width 50]
-;                       [stretchable-width 0]
-;                       [range 100]))
-;(define stone (new gauge% [label "Stone"]
-;                       [parent game]
-;                       [range 200]))
-;(define wood (new gauge% [label "Wood"]
-;                       [parent game]
-;                       [range 200]))
-;(send health set-value 100)
+(define health (new gauge% [label "Health"]
+                    [parent game]
+                    [min-width 50]
+                    [stretchable-width 0]
+                    [range 100]))
+(define stone (new gauge% [label "Stone"]
+                   [parent game]
+                   [range 200]))
+(define wood (new gauge% [label "Wood"]
+                  [parent game]
+                  [range 200]))
+(send health set-value 100)
+
+(big-bang 10
+ (on-tick
+ (set! resources (meter (- (meter-health resources) 1) (meter-wood resources) (meter-stone resources))) 1)
+ (to-draw (map)))
+
 (send game show #t)

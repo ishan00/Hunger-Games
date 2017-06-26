@@ -1,10 +1,10 @@
 #lang racket/gui
-(provide sprite axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-hammer sprite-sword rabbit)
+(provide sprite-empty axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-hammer sprite-sword rabbit tree)
 (require 2htdp/image)
 (require racket/mpair)
 (require lang/posn)
 
-(define (sprite)
+(define (sprite-empty)
   (scale 0.3 (underlay/align/offset
               'center 'bottom
               (underlay/align/offset
@@ -92,7 +92,7 @@
               "solid" (make-color 0 153 76))))
 ;(define (trees)
 (define (stones)
-  (scale 0.3 (overlay/align
+  (scale 0.5 (overlay/align
               "center" "center"
               (rotate -10 (pulled-regular-polygon 40 6 1/2 -5 "solid" (make-color 160 160 160)))
               (rotate 30 (pulled-regular-polygon 50 7 1/2 -5 "solid" (make-color 128 128 128))))))
@@ -166,14 +166,11 @@
      (empty-herbs)))))
 
 (define (sprite-axe)
-  (lambda(x)
-    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 28 21 (axe)))))))
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 28 21 (axe)))))
 (define (sprite-hammer)
-  (lambda(x)
-    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 21 21 (hammer)))))))
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 21 21 (hammer)))))
 (define (sprite-sword)
-  (lambda(x)
-    (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite)) (rotate x (put-pinhole 25 25 (sword)))))))
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 25 25 (sword)))))
 (define (rabbit)
   (scale 0.3 (overlay/offset
               (overlay/offset
@@ -202,6 +199,20 @@
                      (make-posn 70 54))
                "solid" (make-color 255 153 204)))))
 
+(define (tree)
+  (scale 0.6 (overlay/offset
+   (rectangle 18 12 "solid" (make-color 102 51 0))
+   -2 16
+   (overlay/offset
+    (underlay/offset
+     (rectangle 50 50 "solid" (make-color 0 153 76))
+     -2 -1
+     (rectangle 35 35 "solid" (make-color 0 200 95)))
+    -5 75
+    (underlay/offset
+     (rectangle 80 80 "solid" (make-color 0 153 76))
+     4 -3
+     (rectangle 60 60 "solid" (make-color 0 200 95)))))))
 ;(sprite)
 ;(axe)
 ;(hammer)
