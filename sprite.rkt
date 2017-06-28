@@ -1,5 +1,5 @@
 #lang racket/gui
-(provide sprite-empty axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-hammer sprite-sword rabbit tree)
+(provide sprite-empty axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-axe-action sprite-hammer sprite-hammer-action sprite-sword sprite-sword-action rabbit tree)
 (require 2htdp/image)
 (require racket/mpair)
 (require lang/posn)
@@ -167,10 +167,16 @@
 
 (define (sprite-axe)
   (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 28 21 (axe)))))
+(define (sprite-axe-action)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (rotate 45 (put-pinhole 28 21 (axe))))))
 (define (sprite-hammer)
   (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 21 21 (hammer)))))
+(define (sprite-hammer-action)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (rotate 45 (put-pinhole 21 21 (hammer))))))
 (define (sprite-sword)
   (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (put-pinhole 25 25 (sword)))))
+(define (sprite-sword-action)
+  (clear-pinhole (overlay/pinhole (put-pinhole 8 24 (sprite-empty)) (rotate 45 (put-pinhole 25 25 (sword))))))
 (define (rabbit)
   (scale 0.3 (overlay/offset
               (overlay/offset
@@ -213,14 +219,3 @@
      (rectangle 80 80 "solid" (make-color 0 153 76))
      4 -3
      (rectangle 60 60 "solid" (make-color 0 200 95)))))))
-;(sprite)
-;(axe)
-;(hammer)
-;(sword)
-;(stones)
-;(empty-herbs)
-;(berry-herbs)
-;(sprite-axe)
-;(sprite-hammer)
-;(sprite-sword)
-;(rabbit)

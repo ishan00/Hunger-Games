@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/gui
 (require 2htdp/image)
 (require 2htdp/universe)
 (require "sprite.rkt")
@@ -18,8 +18,8 @@
 
 (define background (rectangle 1300 700 "solid" (make-color 0 80 60)))
 (define my-world
-  (world (sprite (sprite-axe) 50 100 0)
-         (resource 100 0 0)
+  (world (sprite (list "axe") 50 100 0)
+         (resource 100 10 20)
          (list (object "empty" 1250 100 0)
                (object "empty" 1250 130 0)
                (object "empty" 1250 160 0)
@@ -54,17 +54,17 @@
                (object "stone" 850 200 5)
                (object "stone" 300 100 5))
          (list (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5)
-               (object "tree" 100 400 5))
-         (list (object "rabbit" 200 80 5)
+               (object "tree" 200 400 5)
+               (object "tree" 300 400 5)
+               (object "tree" 700 100 5)
+               (object "tree" 600 100 5)
+               (object "tree" 1000 500 5)
+               (object "tree" 1000 100 5)
+               (object "tree" 50 100 5)
+               (object "tree" 50 600 5))
+         (list (object "rabbit" 200 880 5)
                (object "rabbit" 800 350 5)
-               (object "rabbit" 30 100 5))))
+               (object "rabbit" 300 170 5))))
 
 (define (string->img str)
   (cond ((equal? str "empty") (empty-herbs))
@@ -72,6 +72,15 @@
         ((equal? str "stone") (stones))
         ((equal? str "rabbit") (rabbit))
         ((equal? str "tree") (tree))))
+
+(define (sprite->img lstr)
+  (if (equal? (car lstr) "action")
+      (cond ((equal? (cadr lstr) "axe") (sprite-axe-action))
+            ((equal? (cadr lstr) "hammer") (sprite-hammer-action))
+            ((equal? (cadr lstr) "sword") (sprite-hammer-action)))
+      (cond ((equal? (car lstr) "axe") (sprite-axe))
+            ((equal? (car lstr) "hammer") (sprite-hammer))
+            ((equal? (car lstr) "sword") (sprite-sword)))))
 
 (define (draw list background)
   (if (null? list) background
@@ -90,18 +99,18 @@
      (add-line
       (add-line
        (add-line
-        (rectangle 200 90 "solid" (make-color 0 51 25))
-        17 20 183 20
+        (rectangle 300 90 "solid" (make-color 0 51 25))
+        17 20 283 20
         (make-pen (make-color 0 100 38) 15 "solid" "round" "round"))
-       20 20 (+ (* (/ h 100) 160) 20) 20
+       20 20 (+ (* (/ h 100) 260) 20) 20
        (make-pen (make-color 0 200 76) 12 "solid" "round" "round"))
-      17 45 183 45
+      17 45 283 45
       (make-pen (make-color 100 50 0) 15 "solid" "round" "round"))
-     20 45 (+ (* (/ w 100) 160) 20) 45
+     20 45 (+ (* (/ w 100) 260) 20) 45
      (make-pen (make-color 153 76 0) 12 "solid" "round" "round"))
-    17 70 183 70
+    17 70 283 70
     (make-pen (make-color 60 60 60) 15 "solid" "round" "round"))
-   20 70 (+ (* (/ s 100) 160) 20) 70
+   20 70 (+ (* (/ s 100) 260) 20) 70
    (make-pen (make-color 128 128 128) 12 "solid" "round" "round")))
    
    
@@ -109,10 +118,10 @@
   (place-image (meters (resource-health (world-meter input-world))
                        (resource-wood (world-meter input-world))
                        (resource-stone (world-meter input-world)))
-               100
-               600
+               153
+               652
                (place-image (rotate (sprite-theta (world-character input-world))
-                                    (sprite-type (world-character input-world)))
+                                    (sprite->img (sprite-type (world-character input-world))))
                             (sprite-x (world-character input-world))
                             (sprite-y (world-character input-world))
                             (draw (world-mobs input-world)
@@ -122,8 +131,11 @@
 
 (define (update-world-on-tick input-world)
   (let* ((new-health (if (= (resource-health (world-meter input-world)) 0) 0
-                         (- (resource-health (world-meter input-world)) 1))))
-    (world (world-character input-world)
+                         (- (resource-health (world-meter input-world)) 0.1))))
+    (world (sprite (remove "action" (sprite-type (world-character input-world)))
+                   (sprite-x (world-character input-world))
+                   (sprite-y (world-character input-world))
+                   (sprite-theta (world-character input-world)))
            (resource new-health
                      (resource-wood (world-meter input-world))
                      (resource-stone (world-meter input-world)))
@@ -132,7 +144,7 @@
            (world-trees input-world)
            (world-mobs input-world))))
          
-(define (update-sprite input-world new-pos)
+(define (update-sprite-pos input-world new-pos)
   (world (sprite (sprite-type (world-character input-world))
                  (posn-x new-pos)
                  (posn-y new-pos)
@@ -143,22 +155,46 @@
          (world-trees input-world)
          (world-mobs input-world)))
 
+(define (update-sprite-type input-world)
+  (let* ((old-type (sprite-type (world-character input-world))))
+    (if (equal? (car old-type) "action")
+        (world (sprite (remove "action" old-type)
+                       (sprite-x (world-character input-world))
+                       (sprite-y (world-character input-world))
+                       (sprite-theta (world-character input-world)))
+               (world-meter input-world)
+         (world-herbs input-world)
+         (world-stones input-world)
+         (world-trees input-world)
+         (world-mobs input-world))
+        (world (sprite (cons "action" old-type)
+                       (sprite-x (world-character input-world))
+                       (sprite-y (world-character input-world))
+                       (sprite-theta (world-character input-world)))
+               (world-meter input-world)
+         (world-herbs input-world)
+         (world-stones input-world)
+         (world-trees input-world)
+         (world-mobs input-world)))))
+
 (define (key-event input-world a-key)
-  (cond ((key=? a-key "up") (update-sprite input-world (make-posn
+  (cond ((key=? a-key "up") (update-sprite-pos input-world (make-posn
                                                         (sprite-x (world-character input-world))
                                                         (- (sprite-y (world-character input-world)) 2))))
-        ((key=? a-key "down") (update-sprite input-world (make-posn
+        ((key=? a-key "down") (update-sprite-pos input-world (make-posn
                                                           (sprite-x (world-character input-world))
                                                           (+ (sprite-y (world-character input-world)) 2))))
-        ((key=? a-key "left") (update-sprite input-world (make-posn
+        ((key=? a-key "left") (update-sprite-pos input-world (make-posn
                                                           (- (sprite-x (world-character input-world)) 2)
                                                           (sprite-y (world-character input-world)))))
-        ((key=? a-key "right") (update-sprite input-world (make-posn
+        ((key=? a-key "right") (update-sprite-pos input-world (make-posn
                                                            (+ (sprite-x (world-character input-world)) 2)
                                                            (sprite-y (world-character input-world)))))
+        ((key=? a-key " ") (update-sprite-type input-world))
         (else input-world)))
 
 (big-bang my-world
           (to-draw render-map)
           (on-tick update-world-on-tick 1/30)
-          (on-key key-event))
+          (on-key key-event)
+          (display-mode 'fullscreen))
