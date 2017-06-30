@@ -1,5 +1,5 @@
 #lang racket/gui
-(provide sprite-empty axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-axe-action sprite-hammer sprite-hammer-action sprite-sword sprite-sword-action rabbit tree)
+(provide sprite-empty axe sword hammer stones empty-herbs berry-herbs sprite-axe sprite-axe-action sprite-hammer sprite-hammer-action sprite-sword sprite-sword-action rabbit tree wolf)
 (require 2htdp/image)
 (require racket/mpair)
 (require lang/posn)
@@ -207,15 +207,109 @@
 
 (define (tree)
   (scale 0.6 (overlay/offset
-   (rectangle 18 12 "solid" (make-color 102 51 0))
-   -2 16
-   (overlay/offset
-    (underlay/offset
-     (rectangle 50 50 "solid" (make-color 0 153 76))
-     -2 -1
-     (rectangle 35 35 "solid" (make-color 0 200 95)))
-    -5 75
-    (underlay/offset
-     (rectangle 80 80 "solid" (make-color 0 153 76))
-     4 -3
-     (rectangle 60 60 "solid" (make-color 0 200 95)))))))
+              (rectangle 18 12 "solid" (make-color 102 51 0))
+              -2 16
+              (overlay/offset
+               (underlay/offset
+                (rectangle 50 50 "solid" (make-color 0 153 76))
+                -2 -1
+                (rectangle 35 35 "solid" (make-color 0 200 95)))
+               -5 75
+               (underlay/offset
+                (rectangle 80 80 "solid" (make-color 0 153 76))
+                4 -3
+                (rectangle 60 60 "solid" (make-color 0 200 95)))))))
+
+(define (wolf)
+  (define (outline)
+    (polygon (list (make-posn 47 -27)
+                   (make-posn 38 -15)
+                   (make-posn 27 -23)
+                   (make-posn 25 -15)
+                   (make-posn 37 4)
+                   (make-pulled-point 1/2 -30 8 -25 1/2 30)
+                   (make-posn 10 6)
+                   (make-posn -2 6)
+                   (make-posn 8 14)
+                   (make-posn 0 15)
+                   (make-posn 12 25)
+                   (make-posn 4 26)
+                   (make-posn 12 30)
+                   (make-pulled-point 1/2 -45 47 70 1/2 45)
+                   (make-posn 82 30)
+                   (make-posn 90 26)
+                   (make-posn 82 25)
+                   (make-posn 94 15)
+                   (make-posn 86 14)
+                   (make-posn 96 6)
+                   (make-posn 84 6)
+                   (make-pulled-point 1/2 -30 86 -25 1/2 30)
+                   (make-posn 57 4)
+                   (make-posn 69 -15)
+                   (make-posn 67 -23)
+                   (make-posn 56 -15))
+             "outline" (make-pen (make-color 240 0 110) 4 "solid" "projecting" "miter")))
+  (define (face)
+    (polygon (list (make-posn 47 -27)
+                   (make-posn 38 -15)
+                   (make-posn 27 -23)
+                   (make-posn 25 -15)
+                   (make-pulled-point 1/2 -30 8 -25 1/2 30)
+                   (make-posn 10 6)
+                   (make-posn -2 6)
+                   (make-posn 8 14)
+                   (make-posn 0 15)
+                   (make-posn 12 25)
+                   (make-posn 4 26)
+                   (make-posn 12 30)
+                   (make-pulled-point 1/2 -45 47 70 1/2 45)
+                   (make-posn 82 30)
+                   (make-posn 90 26)
+                   (make-posn 82 25)
+                   (make-posn 94 15)
+                   (make-posn 86 14)
+                   (make-posn 96 6)
+                   (make-posn 84 6)
+                   (make-pulled-point 1/2 -30 86 -25 1/2 30)
+                   (make-posn 69 -15)
+                   (make-posn 67 -23)
+                   (make-posn 56 -15))
+             "solid" "white"))
+  (define (eyes)
+    (overlay/offset
+     (overlay/offset (circle 4 "solid" "white")
+                     30
+                     0
+                     (circle 4 "solid" "white"))
+     2 2
+     (overlay/offset (circle 8 "solid" (make-color 240 0 110))
+                     30
+                     0
+                     (circle 8 "solid" (make-color 240 0 110)))))
+  (define (black)
+    (overlay/offset
+     (overlay/offset (polygon (list
+                            (make-posn 0 20)
+                            (make-pulled-point 1/2 30 18 2 30 1/2)
+                            (make-posn 14 22))
+                           "solid"
+                           "black")
+                     -50 0
+                     (polygon (list (make-posn 0 20)
+                                    (make-pulled-point 1/2 -30 -18 2 -30 1/2)
+                                    (make-posn -14 22))
+                              "solid"
+                              "black"))
+     0 64
+     (polygon (list (make-posn 52 50)
+                    (make-pulled-point 1/2 -45 47 42 45 1/2)
+                    (make-posn 42 50)
+                    (make-pulled-point 1/2 0 47 52 0 1/2)
+                    (make-posn 52 50))
+              "solid"
+              "black")))
+  (scale 0.5 (overlay/offset (black)
+                  0 -6
+                  (overlay/offset (eyes)
+                                  0 -10
+                                  (overlay/offset (outline) 0 0 (scale 0.95 (face)))))))

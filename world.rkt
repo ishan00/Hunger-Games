@@ -38,8 +38,6 @@
                (object "berry" 450 200 5)
                (object "berry" 20 30 5)
                (object "berry" 1000 300 5)
-               (object "berry" 400 100 5)
-               (object "berry" 1000 300 5)
                (object "berry" 1250 500 5))
          (list (object "stone" 1100 100 5)
                (object "stone" 800 100 5)
@@ -60,16 +58,18 @@
                (object "tree" 1000 100 5)
                (object "tree" 500 100 5)
                (object "tree" 500 600 5))
-         (list (object "rabbit" 200 880 5)
+         (list (object "rabbit" 200 80 5)
                (object "rabbit" 800 350 5)
-               (object "rabbit" 300 170 5))))
+               (object "rabbit" 300 170 5)
+               (object "wolf" 500 500 5))))
 
 (define (string->img str)
   (cond ((equal? str "empty") (empty-herbs))
         ((equal? str "berry") (berry-herbs))
         ((equal? str "stone") (stones))
         ((equal? str "rabbit") (rabbit))
-        ((equal? str "tree") (tree))))
+        ((equal? str "tree") (tree))
+        ((equal? str "wolf") (wolf))))
 
 (define (sprite->img lstr)
   (if (equal? (car lstr) "action")
@@ -84,7 +84,9 @@
   (cond ((equal? type "empty") 25)
         ((equal? type "berry") 25)
         ((equal? type "stone") 30)
-        ((equal? type "tree") 50)))
+        ((equal? type "tree") 50)
+        ((equal? type "rabbit") 20)
+        ((equal? type "wolf") 30)))
 
 (define (draw list background)
   (if (null? list) background
@@ -104,17 +106,17 @@
       (add-line
        (add-line
         (rectangle 300 90 "solid" (make-color 0 51 25))
-        17 20 283 20
+        57 20 283 20
         (make-pen (make-color 0 100 38) 15 "solid" "round" "round"))
-       20 20 (+ (* (/ h 100) 260) 20) 20
+       60 20 (+ (* (/ h 100) 220) 60) 20
        (make-pen (make-color 0 200 76) 12 "solid" "round" "round"))
-      17 45 283 45
+      57 45 283 45
       (make-pen (make-color 100 50 0) 15 "solid" "round" "round"))
-     20 45 (+ (* (/ w 100) 260) 20) 45
+     60 45 (+ (* (/ w 100) 220) 60) 45
      (make-pen (make-color 153 76 0) 12 "solid" "round" "round"))
-    17 70 283 70
+    57 70 283 70
     (make-pen (make-color 60 60 60) 15 "solid" "round" "round"))
-   20 70 (+ (* (/ s 100) 260) 20) 70
+   60 70 (+ (* (/ s 100) 220) 60) 70
    (make-pen (make-color 128 128 128) 12 "solid" "round" "round")))
 
 (define (move-delta mob)
@@ -138,9 +140,10 @@
 
 (define (increment type current)
   (cond ((equal? type "berry") (min (+ current 5) 100))
-        ((equal? type "meat") (min (+ current 20) 100))
+        ((equal? type "rabbit") (min (+ current 15) 100))
         ((equal? type "tree") (min (+ current 10) 100))
-        ((equal? type "stone") (min (+ current 10) 100))))
+        ((equal? type "stone") (min (+ current 10) 100))
+        ((equal? type "wolf") (min (+ current 40) 100))))
 
 (define (decrement type current)
   (cond ((equal? type "time") (max (- current 0.1) 0))
@@ -188,7 +191,8 @@
 (define (update-sprite-type input-world)
   (define col-obj (collide-any? (world-character input-world) (append (world-herbs input-world)
                                                                       (world-stones input-world)
-                                                                      (world-trees input-world))))
+                                                                      (world-trees input-world)
+                                                                      (world-mobs input-world))))
   (cond ((equal? col-obj '()) (world (sprite (cons "action" (sprite-type (world-character input-world)))
                                              (sprite-x (world-character input-world))
                                              (sprite-y (world-character input-world))
@@ -279,20 +283,44 @@
                                                           (world-stones input-world)
                                                           (cons (object "tree" (object-x col-obj) (object-y col-obj) (- (object-storage col-obj) 1))
                                                                 (remove col-obj (world-trees input-world)))
-                                                          (world-mobs input-world))))))
+                                                          (world-mobs input-world))))
+        (else (if (= (object-storage col-obj) 1)
+                                                   (world (sprite (cons "action" (sprite-type (world-character input-world)))
+                                                                  (sprite-x (world-character input-world))
+                                                                  (sprite-y (world-character input-world))
+                                                                  (sprite-theta (world-character input-world)))
+                                                          (resource (increment (object-type col-obj) (resource-health (world-meter input-world)))
+                                                                    (resource-wood (world-meter input-world))
+                                                                    (resource-stone (world-meter input-world)))
+                                                          (world-herbs input-world)
+                                                          (world-stones input-world)
+                                                          (world-trees input-world)
+                                                          (remove col-obj (world-mobs input-world)))
+                                                   (world (sprite (cons "action" (sprite-type (world-character input-world)))
+                                                                  (sprite-x (world-character input-world))
+                                                                  (sprite-y (world-character input-world))
+                                                                  (sprite-theta (world-character input-world)))
+                                                          (resource (resource-health (world-meter input-world))
+                                                                    (resource-wood (world-meter input-world))
+                                                                    (resource-stone (world-meter input-world)))
+                                                          (world-herbs input-world)
+                                                          (world-stones input-world)
+                                                          (world-trees input-world)
+                                                          (cons (object (object-type col-obj) (object-x col-obj) (object-y col-obj) (- (object-storage col-obj) 1))
+                                                                (remove col-obj (world-mobs input-world))))))))
 
 (define (key-event input-world a-key)
   (cond ((key=? a-key "up") (update-sprite-pos input-world (make-posn
                                                             (sprite-x (world-character input-world))
-                                                            (- (sprite-y (world-character input-world)) 2))))
+                                                            (- (sprite-y (world-character input-world)) 3))))
         ((key=? a-key "down") (update-sprite-pos input-world (make-posn
                                                               (sprite-x (world-character input-world))
-                                                              (+ (sprite-y (world-character input-world)) 2))))
+                                                              (+ (sprite-y (world-character input-world)) 3))))
         ((key=? a-key "left") (update-sprite-pos input-world (make-posn
-                                                              (- (sprite-x (world-character input-world)) 2)
+                                                              (- (sprite-x (world-character input-world)) 3)
                                                               (sprite-y (world-character input-world)))))
         ((key=? a-key "right") (update-sprite-pos input-world (make-posn
-                                                               (+ (sprite-x (world-character input-world)) 2)
+                                                               (+ (sprite-x (world-character input-world)) 3)
                                                                (sprite-y (world-character input-world)))))
         ((key=? a-key " ") (update-sprite-type input-world))
         (else input-world)))
